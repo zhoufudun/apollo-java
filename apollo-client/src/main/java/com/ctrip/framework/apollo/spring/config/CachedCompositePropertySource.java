@@ -25,42 +25,42 @@ import org.springframework.core.env.PropertySource;
  * @author Shawyeok (shawyeok@outlook.com)
  */
 public class CachedCompositePropertySource extends CompositePropertySource implements
-    ConfigChangeListener {
+        ConfigChangeListener {
 
-  private volatile String[] names;
+    private volatile String[] names;
 
-  public CachedCompositePropertySource(String name) {
-    super(name);
-  }
-
-  @Override
-  public String[] getPropertyNames() {
-    String[] propertyNames = this.names;
-    if (propertyNames == null) {
-      this.names = propertyNames = super.getPropertyNames();
+    public CachedCompositePropertySource(String name) {
+        super(name);
     }
-    return propertyNames;
-  }
 
-  @Override
-  public void addPropertySource(PropertySource<?> propertySource) {
-    super.addPropertySource(propertySource);
-    if (propertySource instanceof ConfigPropertySource) {
-      ((ConfigPropertySource) propertySource).addChangeListener(this);
+    @Override
+    public String[] getPropertyNames() {
+        String[] propertyNames = this.names;
+        if (propertyNames == null) {
+            this.names = propertyNames = super.getPropertyNames();
+        }
+        return propertyNames;
     }
-  }
 
-  @Override
-  public void addFirstPropertySource(PropertySource<?> propertySource) {
-    super.addFirstPropertySource(propertySource);
-    if (propertySource instanceof ConfigPropertySource) {
-      ((ConfigPropertySource) propertySource).addChangeListener(this);
+    @Override
+    public void addPropertySource(PropertySource<?> propertySource) {
+        super.addPropertySource(propertySource);
+        if (propertySource instanceof ConfigPropertySource) {
+            ((ConfigPropertySource) propertySource).addChangeListener(this);
+        }
     }
-  }
 
-  @Override
-  public void onChange(ConfigChangeEvent changeEvent) {
-    // clear property names cache if any sources has changed
-    this.names = null;
-  }
+    @Override
+    public void addFirstPropertySource(PropertySource<?> propertySource) {
+        super.addFirstPropertySource(propertySource);
+        if (propertySource instanceof ConfigPropertySource) {
+            ((ConfigPropertySource) propertySource).addChangeListener(this);
+        }
+    }
+
+    @Override
+    public void onChange(ConfigChangeEvent changeEvent) {
+        // clear property names cache if any sources has changed
+        this.names = null;
+    }
 }

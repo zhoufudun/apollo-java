@@ -27,23 +27,23 @@ import org.springframework.core.env.PropertySource;
 public class PropertySourcesUtil {
 
 
-  /**
-   * Ensure ApolloBootstrapPropertySources is still the first
-   * @param environment : Ensure ApolloBootstrapPropertySources is still the first in the environment
-   */
-  public static void ensureBootstrapPropertyPrecedence(ConfigurableEnvironment environment) {
-    MutablePropertySources propertySources = environment.getPropertySources();
+    /**
+     * Ensure ApolloBootstrapPropertySources is still the first
+     *
+     * @param environment : Ensure ApolloBootstrapPropertySources is still the first in the environment
+     */
+    public static void ensureBootstrapPropertyPrecedence(ConfigurableEnvironment environment) {
+        MutablePropertySources propertySources = environment.getPropertySources();
 
-    PropertySource<?> bootstrapPropertySource = propertySources
-        .get(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
+        PropertySource<?> bootstrapPropertySource = propertySources.get(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
 
-    // not exists or already in the first place
-    if (bootstrapPropertySource == null || propertySources.precedenceOf(bootstrapPropertySource) == 0) {
-      return;
+        // not exists or already in the first place
+        if (bootstrapPropertySource == null || propertySources.precedenceOf(bootstrapPropertySource) == 0) {
+            return;
+        }
+
+        propertySources.remove(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
+        propertySources.addFirst(bootstrapPropertySource);
     }
-
-    propertySources.remove(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
-    propertySources.addFirst(bootstrapPropertySource);
-  }
 
 }
