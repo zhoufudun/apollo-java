@@ -61,10 +61,16 @@ import org.springframework.core.env.*;
  * 此外，该类还实现了setEnvironment、getOrder和setApplicationEventPublisher方法，分别用于设置Spring的环境、获取处理的优先级和设置事件发布器。
  * 总的来说，这个类是Apollo配置与Spring框架集成的关键组件，它确保了Apollo的配置能够被Spring应用正确加载和使用
  *
+ *
+ * PropertySourcesProcessor 是 Apollo 最关键的组件之一，并且其实例化优先级也是最高的，PropertySourcesProcessor#postProcessBeanFactory() 会在该类实例化的时候被回调，该方法的处理如下：
+ *
+ * BeanFactoryPostProcessor BeanDefinition定义加载到容器，实例化之前调用
+ *
  * @author Jason Song(song_s@ctrip.com)
  */
 public class PropertySourcesProcessor implements BeanFactoryPostProcessor, EnvironmentAware,
         ApplicationEventPublisherAware, PriorityOrdered {
+    // key=order, value=namespaces
     private static final Multimap<Integer, String> NAMESPACE_NAMES = LinkedHashMultimap.create();
     private static final Set<BeanFactory> AUTO_UPDATE_INITIALIZED_BEAN_FACTORIES = Sets.newConcurrentHashSet();
 
@@ -81,7 +87,9 @@ public class PropertySourcesProcessor implements BeanFactoryPostProcessor, Envir
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         this.configUtil = ApolloInjector.getInstance(ConfigUtil.class);
+        // 调用 PropertySourcesProcessor#initializePropertySources() 拉取远程 namespace 配置
         initializePropertySources();
+        // 调用 PropertySourcesProcessor#initializeAutoUpdatePropertiesFeature() 给所有缓存在本地的 Config 配置添加监听器
         initializeAutoUpdatePropertiesFeature(beanFactory);
     }
 

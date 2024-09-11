@@ -29,64 +29,68 @@ import org.springframework.core.type.MethodMetadata;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class BeanRegistrationUtil {
-  // reserved bean definitions, we should consider drop this if we will upgrade Spring version
-  private static final Map<String, String> RESERVED_BEAN_DEFINITIONS = new ConcurrentHashMap<>();
+    // reserved bean definitions, we should consider drop this if we will upgrade Spring version
+    private static final Map<String, String> RESERVED_BEAN_DEFINITIONS = new ConcurrentHashMap<>();
 
-  static {
-    RESERVED_BEAN_DEFINITIONS.put(
-        "org.springframework.context.support.PropertySourcesPlaceholderConfigurer",
-        "org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration#propertySourcesPlaceholderConfigurer"
-    );
-  }
-
-  public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, Class<?> beanClass) {
-    return registerBeanDefinitionIfNotExists(registry, beanClass, null);
-  }
-
-  public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, Class<?> beanClass,
-                                                          Map<String, Object> extraPropertyValues) {
-    return registerBeanDefinitionIfNotExists(registry, beanClass.getName(), beanClass, extraPropertyValues);
-  }
-
-  public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, String beanName,
-                                                          Class<?> beanClass) {
-    return registerBeanDefinitionIfNotExists(registry, beanName, beanClass, null);
-  }
-
-  public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, String beanName,
-                                                          Class<?> beanClass, Map<String, Object> extraPropertyValues) {
-    if (registry.containsBeanDefinition(beanName)) {
-      return false;
+    static {
+        // spring boot property sources placeholder configurer 特殊的BeanDefinition，不能动他
+        RESERVED_BEAN_DEFINITIONS.put(
+                "org.springframework.context.support.PropertySourcesPlaceholderConfigurer",
+                "org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration#propertySourcesPlaceholderConfigurer"
+        );
     }
 
-    String[] candidates = registry.getBeanDefinitionNames();
+    public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, Class<?> beanClass) {
+        return registerBeanDefinitionIfNotExists(registry, beanClass, null);
+    }
 
-    String reservedBeanDefinition = RESERVED_BEAN_DEFINITIONS.get(beanClass.getName());
-    for (String candidate : candidates) {
-      BeanDefinition beanDefinition = registry.getBeanDefinition(candidate);
-      if (Objects.equals(beanDefinition.getBeanClassName(), beanClass.getName())) {
-        return false;
-      }
+    public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, Class<?> beanClass,
+                                                            Map<String, Object> extraPropertyValues) {
+        return registerBeanDefinitionIfNotExists(registry, beanClass.getName(), beanClass, extraPropertyValues);
+    }
 
-      if (reservedBeanDefinition != null && beanDefinition.getSource() != null && beanDefinition.getSource() instanceof MethodMetadata) {
-        MethodMetadata metadata = (MethodMetadata) beanDefinition.getSource();
-        if (Objects.equals(reservedBeanDefinition, String.format("%s#%s", metadata.getDeclaringClassName(), metadata.getMethodName()))) {
-          return false;
+    public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, String beanName,
+                                                            Class<?> beanClass) {
+        return registerBeanDefinitionIfNotExists(registry, beanName, beanClass, null);
+    }
+
+    public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, String beanName,
+                                                            Class<?> beanClass, Map<String, Object> extraPropertyValues) {
+        if (registry.containsBeanDefinition(beanName)) {
+            return false;
         }
-      }
+        // check if there is a bean definition with the same class name
+        String[] candidates = registry.getBeanDefinitionNames();
+        // 保留的bean definition，不动
+        String reservedBeanDefinition = RESERVED_BEAN_DEFINITIONS.get(beanClass.getName());
+        for (String candidate : candidates) {
+            BeanDefinition beanDefinition = registry.getBeanDefinition(candidate);
+            // 如果有相同的class name，直接返回
+            if (Objects.equals(beanDefinition.getBeanClassName(), beanClass.getName())) {
+                return false;
+            }
+
+            // 如果有相同的reserved bean definition，直接返回
+            if (reservedBeanDefinition != null && beanDefinition.getSource() != null && beanDefinition.getSource() instanceof MethodMetadata) {
+                MethodMetadata metadata = (MethodMetadata) beanDefinition.getSource();
+                // 如果是同一个reserved bean definition，直接返回
+                if (Objects.equals(reservedBeanDefinition, String.format("%s#%s", metadata.getDeclaringClassName(), metadata.getMethodName()))) {
+                    return false;
+                }
+            }
+        }
+
+        BeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(beanClass).getBeanDefinition();
+
+        if (extraPropertyValues != null) {
+            for (Map.Entry<String, Object> entry : extraPropertyValues.entrySet()) {
+                beanDefinition.getPropertyValues().add(entry.getKey(), entry.getValue());
+            }
+        }
+
+        registry.registerBeanDefinition(beanName, beanDefinition);
+
+        return true;
     }
-
-    BeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(beanClass).getBeanDefinition();
-
-    if (extraPropertyValues != null) {
-      for (Map.Entry<String, Object> entry : extraPropertyValues.entrySet()) {
-        beanDefinition.getPropertyValues().add(entry.getKey(), entry.getValue());
-      }
-    }
-
-    registry.registerBeanDefinition(beanName, beanDefinition);
-
-    return true;
-  }
 
 }

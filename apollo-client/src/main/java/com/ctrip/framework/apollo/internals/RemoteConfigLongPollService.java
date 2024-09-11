@@ -261,7 +261,7 @@ public class RemoteConfigLongPollService {
       }
       //since .properties are filtered out by default, so we need to check if there is notification with .properties suffix
       String namespaceNameWithPropertiesSuffix =
-          String.format("%s.%s", namespaceName, ConfigFileFormat.Properties.getValue());
+              String.format("%s.%s", namespaceName, ConfigFileFormat.Properties.getValue());
       if (m_notifications.containsKey(namespaceNameWithPropertiesSuffix)) {
         m_notifications.put(namespaceNameWithPropertiesSuffix, notification.getNotificationId());
       }
