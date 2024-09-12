@@ -22,13 +22,13 @@ import com.ctrip.framework.apollo.core.spi.Ordered;
  * @author Jason Song(song_s@ctrip.com)
  */
 public interface MessageProducerManager extends Ordered {
-  /**
-   * @return the message producer
-   */
-  MessageProducer getProducer();
+    /**
+     * @return the message producer
+     */
+    MessageProducer getProducer();
 
-  @Override
-  default int getOrder() {
-    return 0;
-  }
+    @Override
+    default int getOrder() {
+        return 0;
+    }
 }

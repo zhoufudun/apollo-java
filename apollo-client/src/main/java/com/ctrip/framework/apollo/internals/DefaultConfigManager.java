@@ -41,6 +41,13 @@ public class DefaultConfigManager implements ConfigManager {
         m_factoryManager = ApolloInjector.getInstance(ConfigFactoryManager.class);
     }
 
+    /**
+     * 首先从缓存中获取配置，缓存中没有则从远程拉取，注意此处在 synchronized 代码块内部也判了一次空，采用了双重检查锁机制。
+     * 远程拉取配置首先需要通过 ConfigFactoryManager#getFactory() 方法获取 ConfigFactory 实例，这里实际上获取的是DefaultConfigFactory，
+     * 再通过 DefaultConfigFactory#create() 去获取 Apollo Server 中的配置。
+     * @param namespace the namespace
+     * @return
+     */
     @Override
     public Config getConfig(String namespace) {
         // 首先从缓存中获取配置，缓存中没有则从远程拉取，注意此处在 synchronized 代码块内部也判了一次空，采用了双重检查锁机制

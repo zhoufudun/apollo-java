@@ -85,6 +85,12 @@ import org.springframework.core.env.StandardEnvironment;
  * 是Spring框架原有的概念，这个类的主要目的就是在 ConfigurableApplicationContext 类型（或者子类型）的 ApplicationContext 做refresh之前，允许我们对 ConfigurableApplicationContext 的实例做进一步的设置或者处理。
  * 两者虽都实现在 Application Context 做 refresh 之前加载配置，但是 EnvironmentPostProcessor 的扩展点相比 ApplicationContextInitializer 更加靠前，使得 Apollo 配置加载能够提到初始化日志系统之前
  *
+ *
+ * 总的来说，调用顺序如下：
+ * 1、initializeSystemProperty 在 postProcessEnvironment 中被调用。
+ * 2、postProcessEnvironment 在 Spring 应用环境准备好后被调用，如果配置了 apollo.bootstrap.eagerLoad.enabled=true。
+ * 3、initialize 在 postProcessEnvironment 中被调用，如果 apollo.bootstrap.enabled=true。
+ * 这个顺序确保了系统属性首先被初始化，然后是 Apollo 配置的加载，这样可以在 Spring 应用启动的早期阶段就使用 Apollo 配置
  */
 public class ApolloApplicationContextInitializer implements
         ApplicationContextInitializer<ConfigurableApplicationContext>, EnvironmentPostProcessor, Ordered {
@@ -108,6 +114,7 @@ public class ApolloApplicationContextInitializer implements
             .getInstance(ConfigPropertySourceFactory.class);
 
     private int order = DEFAULT_ORDER;
+
 
     @Override
     public void initialize(ConfigurableApplicationContext context) {

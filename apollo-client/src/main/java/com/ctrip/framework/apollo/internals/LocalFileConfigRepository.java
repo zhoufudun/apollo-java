@@ -69,7 +69,7 @@ public class LocalFileConfigRepository extends AbstractConfigRepository
 
     public LocalFileConfigRepository(String namespace, ConfigRepository upstream) {
         m_namespace = namespace;
-        m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
+        m_configUtil = ApolloInjector.getInstance(ConfigUtil.class); //获取单例实现，参考：DefaultInjector
         this.setLocalCacheDir(findLocalCacheDir(), false);
         this.setUpstreamRepository(upstream);
     }
@@ -118,7 +118,8 @@ public class LocalFileConfigRepository extends AbstractConfigRepository
         if (m_upstream != null) {
             m_upstream.removeChangeListener(this);
         }
-        m_upstream = upstreamConfigRepository;
+        m_upstream = upstreamConfigRepository; // RemoteConfigRepository
+        // 将 LocalFileConfigRepository 注册进 RemoteConfigRepository的变更通知列表中
         upstreamConfigRepository.addChangeListener(this);
     }
 
@@ -239,13 +240,7 @@ public class LocalFileConfigRepository extends AbstractConfigRepository
         return properties;
     }
 
-  /**
-   * 更新本地文件
-   *
-   * @param baseDir
-   * @param namespace
-   */
-  void persistLocalCacheFile(File baseDir, String namespace) {
+    void persistLocalCacheFile(File baseDir, String namespace) {
         if (baseDir == null) {
             return;
         }

@@ -34,116 +34,116 @@ import org.junit.Test;
 
 public class ApolloMockServerApiTest {
 
-  private static final String anotherNamespace = "anotherNamespace";
+    private static final String anotherNamespace = "anotherNamespace";
 
-  @ClassRule
-  public static EmbeddedApollo embeddedApollo = new EmbeddedApollo();
+    @ClassRule
+    public static EmbeddedApollo embeddedApollo = new EmbeddedApollo();
 
-  @Test
-  public void testGetProperty() throws Exception {
-    Config applicationConfig = ConfigService.getAppConfig();
+    @Test
+    public void testGetProperty() throws Exception {
+        Config applicationConfig = ConfigService.getAppConfig();
 
-    assertEquals("value1", applicationConfig.getProperty("key1", null));
-    assertEquals("value2", applicationConfig.getProperty("key2", null));
-  }
+        assertEquals("value1", applicationConfig.getProperty("key1", null));
+        assertEquals("value2", applicationConfig.getProperty("key2", null));
+    }
 
-  @Test
-  public void testUpdateProperties() throws Exception {
-    String someNewValue = "someNewValue";
+    @Test
+    public void testUpdateProperties() throws Exception {
+        String someNewValue = "someNewValue";
 
-    Config otherConfig = ConfigService.getConfig(anotherNamespace);
+        Config otherConfig = ConfigService.getConfig(anotherNamespace);
 
-    final SettableFuture<ConfigChangeEvent> future = SettableFuture.create();
+        final SettableFuture<ConfigChangeEvent> future = SettableFuture.create();
 
-    otherConfig.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        future.set(changeEvent);
-      }
-    });
+        otherConfig.addChangeListener(new ConfigChangeListener() {
+            @Override
+            public void onChange(ConfigChangeEvent changeEvent) {
+                future.set(changeEvent);
+            }
+        });
 
-    assertEquals("otherValue1", otherConfig.getProperty("key1", null));
-    assertEquals("otherValue2", otherConfig.getProperty("key2", null));
+        assertEquals("otherValue1", otherConfig.getProperty("key1", null));
+        assertEquals("otherValue2", otherConfig.getProperty("key2", null));
 
-    embeddedApollo.addOrModifyProperty(anotherNamespace, "key1", someNewValue);
+        embeddedApollo.addOrModifyProperty(anotherNamespace, "key1", someNewValue);
 
-    ConfigChangeEvent changeEvent = future.get(5, TimeUnit.SECONDS);
+        ConfigChangeEvent changeEvent = future.get(5, TimeUnit.SECONDS);
 
-    assertEquals(someNewValue, otherConfig.getProperty("key1", null));
-    assertEquals("otherValue2", otherConfig.getProperty("key2", null));
-    assertTrue(changeEvent.isChanged("key1"));
-  }
+        assertEquals(someNewValue, otherConfig.getProperty("key1", null));
+        assertEquals("otherValue2", otherConfig.getProperty("key2", null));
+        assertTrue(changeEvent.isChanged("key1"));
+    }
 
-  @Test
-  public void testUpdateSamePropertyTwice() throws Exception {
-    String someNewValue = "someNewValue";
+    @Test
+    public void testUpdateSamePropertyTwice() throws Exception {
+        String someNewValue = "someNewValue";
 
-    Config otherConfig = ConfigService.getConfig(anotherNamespace);
+        Config otherConfig = ConfigService.getConfig(anotherNamespace);
 
-    final Semaphore changes = new Semaphore(0);
+        final Semaphore changes = new Semaphore(0);
 
-    otherConfig.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        changes.release();
-      }
-    });
+        otherConfig.addChangeListener(new ConfigChangeListener() {
+            @Override
+            public void onChange(ConfigChangeEvent changeEvent) {
+                changes.release();
+            }
+        });
 
-    assertEquals("otherValue3", otherConfig.getProperty("key3", null));
+        assertEquals("otherValue3", otherConfig.getProperty("key3", null));
 
-    embeddedApollo.addOrModifyProperty(anotherNamespace, "key3", someNewValue);
-    embeddedApollo.addOrModifyProperty(anotherNamespace, "key3", someNewValue);
+        embeddedApollo.addOrModifyProperty(anotherNamespace, "key3", someNewValue);
+        embeddedApollo.addOrModifyProperty(anotherNamespace, "key3", someNewValue);
 
-    assertTrue(changes.tryAcquire(5, TimeUnit.SECONDS));
-    assertEquals(someNewValue, otherConfig.getProperty("key3", null));
-    assertEquals(0, changes.availablePermits());
-  }
+        assertTrue(changes.tryAcquire(5, TimeUnit.SECONDS));
+        assertEquals(someNewValue, otherConfig.getProperty("key3", null));
+        assertEquals(0, changes.availablePermits());
+    }
 
-  @Test
-  public void testDeleteProperties() throws Exception {
-    Config otherConfig = ConfigService.getConfig(anotherNamespace);
+    @Test
+    public void testDeleteProperties() throws Exception {
+        Config otherConfig = ConfigService.getConfig(anotherNamespace);
 
-    final SettableFuture<ConfigChangeEvent> future = SettableFuture.create();
+        final SettableFuture<ConfigChangeEvent> future = SettableFuture.create();
 
-    otherConfig.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        future.set(changeEvent);
-      }
-    });
+        otherConfig.addChangeListener(new ConfigChangeListener() {
+            @Override
+            public void onChange(ConfigChangeEvent changeEvent) {
+                future.set(changeEvent);
+            }
+        });
 
-    assertEquals("otherValue4", otherConfig.getProperty("key4", null));
-    assertEquals("otherValue5", otherConfig.getProperty("key5", null));
+        assertEquals("otherValue4", otherConfig.getProperty("key4", null));
+        assertEquals("otherValue5", otherConfig.getProperty("key5", null));
 
-    embeddedApollo.deleteProperty(anotherNamespace, "key4");
+        embeddedApollo.deleteProperty(anotherNamespace, "key4");
 
-    ConfigChangeEvent changeEvent = future.get(5, TimeUnit.SECONDS);
+        ConfigChangeEvent changeEvent = future.get(5, TimeUnit.SECONDS);
 
-    assertNull(otherConfig.getProperty("key4", null));
-    assertEquals("otherValue5", otherConfig.getProperty("key5", null));
-    assertTrue(changeEvent.isChanged("key4"));
-  }
+        assertNull(otherConfig.getProperty("key4", null));
+        assertEquals("otherValue5", otherConfig.getProperty("key5", null));
+        assertTrue(changeEvent.isChanged("key4"));
+    }
 
-  @Test
-  public void testDeleteSamePropertyTwice() throws Exception {
-    Config otherConfig = ConfigService.getConfig(anotherNamespace);
+    @Test
+    public void testDeleteSamePropertyTwice() throws Exception {
+        Config otherConfig = ConfigService.getConfig(anotherNamespace);
 
-    final Semaphore changes = new Semaphore(0);
+        final Semaphore changes = new Semaphore(0);
 
-    otherConfig.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        changes.release();
-      }
-    });
+        otherConfig.addChangeListener(new ConfigChangeListener() {
+            @Override
+            public void onChange(ConfigChangeEvent changeEvent) {
+                changes.release();
+            }
+        });
 
-    assertEquals("otherValue6", otherConfig.getProperty("key6", null));
+        assertEquals("otherValue6", otherConfig.getProperty("key6", null));
 
-    embeddedApollo.deleteProperty(anotherNamespace, "key6");
-    embeddedApollo.deleteProperty(anotherNamespace, "key6");
+        embeddedApollo.deleteProperty(anotherNamespace, "key6");
+        embeddedApollo.deleteProperty(anotherNamespace, "key6");
 
-    assertTrue(changes.tryAcquire(5, TimeUnit.SECONDS));
-    assertNull(otherConfig.getProperty("key6", null));
-    assertEquals(0, changes.availablePermits());
-  }
+        assertTrue(changes.tryAcquire(5, TimeUnit.SECONDS));
+        assertNull(otherConfig.getProperty("key6", null));
+        assertEquals(0, changes.availablePermits());
+    }
 }

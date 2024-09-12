@@ -93,10 +93,11 @@ public class DefaultInjector implements Injector {
                     String.format("Unable to load instance for %s with name %s!", clazz.getName(), name), ex);
         }
     }
-
+    // ApolloModule 类的 configure 方法是为了在 Spring 应用程序启动时配置依赖项，使得 Apollo 能够与 Guice 一起工作，提供应用运行所需的各种配置和服务，同时确保这些组件以单例方式提供，避免资源浪费和不一致状态。
     private static class ApolloModule extends AbstractModule {
         @Override
         protected void configure() {
+            // 这些绑定指定了在需要相应类型的实例时，Guice 应该提供哪个具体类的实例
             bind(ConfigManager.class).to(DefaultConfigManager.class).in(Singleton.class);
             bind(ConfigFactoryManager.class).to(DefaultConfigFactoryManager.class).in(Singleton.class);
             bind(ConfigRegistry.class).to(DefaultConfigRegistry.class).in(Singleton.class);
