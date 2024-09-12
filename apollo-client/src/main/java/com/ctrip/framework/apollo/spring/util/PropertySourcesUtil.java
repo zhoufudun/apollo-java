@@ -29,7 +29,8 @@ public class PropertySourcesUtil {
 
     /**
      * Ensure ApolloBootstrapPropertySources is still the first
-     *
+     * // 1. Ensure ApolloBootstrapPropertySources is still the first in the environment
+     * // 保证ApolloBootstrapPropertySources 在在第一个，优先级最高
      * @param environment : Ensure ApolloBootstrapPropertySources is still the first in the environment
      */
     public static void ensureBootstrapPropertyPrecedence(ConfigurableEnvironment environment) {

@@ -23,8 +23,10 @@ import com.google.common.collect.Lists;
 
 public class ConfigPropertySourceFactory {
 
+    // 用于缓存所有的 ConfigPropertySource 对象，一个namespace对应一个ConfigPropertySource，一个ConfigPropertySource 对应一个Config
     private final List<ConfigPropertySource> configPropertySources = Lists.newLinkedList();
 
+    // 每个namespace对应一个ConfigPropertySource
     public ConfigPropertySource getConfigPropertySource(String name, Config source) {
         // 将 Apollo 的 Config 配置封装为继承自 Spring 内置的 EnumerablePropertySource 类的 ConfigPropertySource 对象
         ConfigPropertySource configPropertySource = new ConfigPropertySource(name, source);

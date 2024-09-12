@@ -43,6 +43,9 @@ import com.google.common.util.concurrent.RateLimiter;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
+ * https://www.cnblogs.com/bigcoder84/p/18213911#gallery-2
+ *
+ * DefaultConfig 收到来自 LocalFileConfigRepository 配置变更后，会计算出具体的属性变更信息，并回调ConfigChangeListener#onChange 方法
  */
 public class DefaultConfig extends AbstractConfig implements RepositoryChangeListener {
 

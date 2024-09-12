@@ -56,6 +56,7 @@ public class ConfigPropertySource extends EnumerablePropertySource<Config> {
     }
 
     public void addChangeListener(ConfigChangeListener listener) {
+        //  实际调用的是 DefaultConfig#addChangeListener() 方法
         this.source.addChangeListener(listener);
     }
 }

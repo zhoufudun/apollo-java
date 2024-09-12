@@ -44,6 +44,7 @@ public class ApolloConfigRegistrar implements ImportBeanDefinitionRegistrar, Env
 
     /**
      * 方法则是在 Spring 容器初始化过程中的 BeanFactoryPostProcessor 阶段调用的。这个方法的主要作用是向 Spring 容器中注册额外的 Bean 定义
+     * 这个方法是在 Spring 容器初始化过程中的 BeanFactoryPostProcessor 阶段调用的。它的主要作用是向 Spring 容器中注册额外的 Bean 定义
      *
      * @param importingClassMetadata annotation metadata of the importing class
      * @param registry current bean definition registry

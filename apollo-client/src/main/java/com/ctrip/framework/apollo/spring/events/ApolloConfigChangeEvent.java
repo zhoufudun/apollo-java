@@ -24,11 +24,11 @@ import org.springframework.context.ApplicationEvent;
  */
 public class ApolloConfigChangeEvent extends ApplicationEvent {
 
-  public ApolloConfigChangeEvent(ConfigChangeEvent source) {
-    super(source);
-  }
+    public ApolloConfigChangeEvent(ConfigChangeEvent source) {
+        super(source);
+    }
 
-  public ConfigChangeEvent getConfigChangeEvent() {
-    return (ConfigChangeEvent) getSource();
-  }
+    public ConfigChangeEvent getConfigChangeEvent() {
+        return (ConfigChangeEvent) getSource();
+    }
 }

@@ -553,6 +553,7 @@ public abstract class AbstractConfig implements Config {
 
         return false;
     }
+
     // 获取这一批变更的key中，感兴趣的key
     private Set<String> resolveInterestedChangedKeys(ConfigChangeListener configChangeListener, Set<String> changedKeys) {
         Set<String> interestedChangedKeys = new HashSet<>();

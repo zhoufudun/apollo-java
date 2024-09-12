@@ -65,9 +65,9 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
         // PropertySourcesPlaceholderConfigurer的属性配置
         propertySourcesPlaceholderPropertyValues.put("order", 0); // 数字越小，优先级越高
 
-        // PropertySourcesPlaceholderConfigurer是 SpringBoot 框架自身的占位符处理配置，占位符的处理主要是将 ${apollo.value} 这样的字符串解析出 关键字 apollo.value，再使用这个 key 通过 PropertySourcesPropertyResolver 从 PropertySource 中找到对应的属性值替换掉占位符
-        BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class,
-                propertySourcesPlaceholderPropertyValues);
+        // PropertySourcesPlaceholderConfigurer是SpringBoot框架自身的占位符处理配置，占位符的处理主要是将 ${apollo.value} 这样的字符串解析出 关键字 apollo.value，再使用这个 key 通过 PropertySourcesPropertyResolver 从 PropertySource 中找到对应的属性值替换掉占位符
+        BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class, propertySourcesPlaceholderPropertyValues);
+        // 注册该监听器就是用于监听 ApolloConfigChangeEvent 事件，当属性发生变更调用 AutoUpdateConfigChangeListener#onChange 方法
         BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, AutoUpdateConfigChangeListener.class);
         // 用于拉取 @EnableApolloConfig 配置的 namespace 的远程配置
         BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesProcessor.class);
@@ -111,6 +111,7 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
         return Ordered.LOWEST_PRECEDENCE;
     }
 
+    // 在上下文初始化之前。此时，我们可以通过 Environment 来获取 application.properties 中配置的属性值
     @Override
     public void setEnvironment(Environment environment) {
         this.environment = environment;
