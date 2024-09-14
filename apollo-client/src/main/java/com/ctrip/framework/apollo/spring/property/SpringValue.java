@@ -29,6 +29,9 @@ import org.springframework.core.MethodParameter;
  *
  * @author github.com/zhegexiaohuozi  seimimaster@gmail.com
  * @since 2018/2/6.
+ * <p>
+ * SpringValue是Apollo维护的来更新spring中@Value值变化后的类。里面维护了@Value的占位符，bean，field等信息。
+ * 通过继承BeanPostProcessor实现postProcessBeforeInitialization来维护起来的
  */
 public class SpringValue {
 

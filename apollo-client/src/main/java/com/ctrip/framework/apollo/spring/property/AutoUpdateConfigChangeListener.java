@@ -51,18 +51,20 @@ import org.springframework.util.CollectionUtils;
  * Create by zhangzheng on 2018/3/6
  *
  * https://www.cnblogs.com/bigcoder84/p/18213911#gallery-2
+ * https://www.cnblogs.com/bigcoder84/p/18213911
  *
  * 在DefaultApolloConfigRegistrarHelper#registerBeanDefinitions
  * 会注册 AutoUpdateConfigChangeListener Bean进入Ioc容器，而该监听器就是用于监听 ApolloConfigChangeEvent 事件，
  * 当属性发生变更调用 AutoUpdateConfigChangeListener#onChange
+ *
  */
 public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
         ApplicationListener<ApolloConfigChangeEvent>, ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(AutoUpdateConfigChangeListener.class);
     private final boolean typeConverterHasConvertIfNecessaryWithFieldParameter;
-    private ConfigurableBeanFactory beanFactory;
-    private TypeConverter typeConverter;
+    private ConfigurableBeanFactory beanFactory; // org.springframework.beans.factory.support.DefaultListableBeanFactory
+    private TypeConverter typeConverter; //
     private final PlaceholderHelper placeholderHelper;
     private final SpringValueRegistry springValueRegistry;
     private final Map<String, Gson> datePatternGsonMap;

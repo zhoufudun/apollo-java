@@ -26,6 +26,7 @@ import com.ctrip.framework.apollo.Config;
 
 /**
  * Property source wrapper for Config
+ * https://blog.51cto.com/u_14691/11376981
  *
  * @author Jason Song(song_s@ctrip.com)
  */

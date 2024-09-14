@@ -62,12 +62,12 @@ import org.slf4j.Logger;
 /**
  * @author Jason Song(song_s@ctrip.com)
  * <p>
- *
+ * <p>
  * https://www.cnblogs.com/bigcoder84/p/18213911
- *
+ * <p>
  * 每个namespace下的配置，都有一个RemoteConfigRepository对象
- *
- *
+ * <p>
+ * <p>
  * Spring启动流程创建 RemoteConfigRepository 对象时会尝试第一次拉取namespace对应的配置，
  * 拉取完后会创建定时拉取任务和长轮询任务，长轮询任务调用 RemoteConfigLongPollService#startLongPolling 来实现，
  * 若服务端配置发生变更，则会回调 RemoteConfigRepository#onLongPollNotified 方法，
