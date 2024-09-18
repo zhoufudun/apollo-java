@@ -25,8 +25,8 @@ import com.google.common.collect.Maps;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class DefaultConfigFactoryManager implements ConfigFactoryManager {
-    private ConfigRegistry m_registry;
-
+    private ConfigRegistry m_registry; // DefaultConfigRegistry
+    // key=namespace, value=DefaultConfigFactory
     private Map<String, ConfigFactory> m_factories = Maps.newConcurrentMap();
 
     public DefaultConfigFactoryManager() {
@@ -57,7 +57,7 @@ public class DefaultConfigFactoryManager implements ConfigFactoryManager {
         }
 
         // step 4: check default config factory
-        factory = ApolloInjector.getInstance(ConfigFactory.class);
+        factory = ApolloInjector.getInstance(ConfigFactory.class); // DefaultConfigFactory
 
         m_factories.put(namespace, factory);
 

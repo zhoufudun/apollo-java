@@ -23,13 +23,13 @@ import java.util.Map;
  */
 public class ApolloConfig {
 
-    private String appId;
+    private String appId; // fix-server
 
-    private String cluster;
+    private String cluster; // default
 
-    private String namespaceName;
+    private String namespaceName; // application namespace
 
-    private Map<String, String> configurations;
+    private Map<String, String> configurations; // 当前namespace下所有的配置
 
     private String releaseKey;
 

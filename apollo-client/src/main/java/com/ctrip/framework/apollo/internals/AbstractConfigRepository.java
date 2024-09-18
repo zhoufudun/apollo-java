@@ -34,7 +34,7 @@ import com.google.common.collect.Lists;
  */
 public abstract class AbstractConfigRepository implements ConfigRepository {
     private static final Logger logger = LoggerFactory.getLogger(AbstractConfigRepository.class);
-    private List<RepositoryChangeListener> m_listeners = Lists.newCopyOnWriteArrayList();
+    private List<RepositoryChangeListener> m_listeners = Lists.newCopyOnWriteArrayList(); // LocalFileConfigRepository或者DefaultConfig] 看具体的子类是什么
     protected PropertiesFactory propertiesFactory = ApolloInjector.getInstance(PropertiesFactory.class);
 
     protected boolean trySync() {
@@ -64,9 +64,9 @@ public abstract class AbstractConfigRepository implements ConfigRepository {
         m_listeners.remove(listener);
     }
 
-    protected void fireRepositoryChange(String namespace, Properties newProperties) {
+    protected void fireRepositoryChange(String namespace, Properties newProperties) { //namespace=application, newProperties={student={"name":"zhoufudn","age":20}, name=zhoufudun, keyName=key, key=keyName}
         for (RepositoryChangeListener listener : m_listeners) {
-            try {
+            try { // com.ctrip.framework.apollo.internals.LocalFileConfigRepository或者DefaultConfig
                 listener.onRepositoryChange(namespace, newProperties);
             } catch (Throwable ex) {
                 Tracer.logError(ex);

@@ -102,13 +102,13 @@ public class RemoteConfigLongPollService {
      * key:namespace的名字
      * value：RemoteConfigRepository集合
      */
-    private final Multimap<String, RemoteConfigRepository> m_longPollNamespaces;
+    private final Multimap<String, RemoteConfigRepository> m_longPollNamespaces; // {application=[com.ctrip.framework.apollo.internals.RemoteConfigRepository@5400db36], OrderEntryAssignedRouteKeys=[com.ctrip.framework.apollo.internals.RemoteConfigRepository@107bfcb2], OesSiteExecRptAssignedRouteKeys=[com.ctrip.framework.apollo.internals.RemoteConfigRepository@58b91d57]}
     /**
      * 通知编号Map缓存
      * key:namespace的名字
      * value:最新的通知编号
      */
-    private final ConcurrentMap<String, Long> m_notifications;
+    private final ConcurrentMap<String, Long> m_notifications; // {OesSiteExecRptAssignedRouteKeys=-1, application=11, OrderEntryAssignedRouteKeys=-1}
     /**
      * 通知消息Map缓存
      * key:namespace的名字
@@ -165,8 +165,8 @@ public class RemoteConfigLongPollService {
         try {
             final String appId = m_configUtil.getAppId();
             final String cluster = m_configUtil.getCluster();
-            final String dataCenter = m_configUtil.getDataCenter();
-            final String secret = m_configUtil.getAccessKeySecret();
+            final String dataCenter = m_configUtil.getDataCenter(); // null
+            final String secret = m_configUtil.getAccessKeySecret();// null
             // 获得长轮询任务的初始化延迟时间,单位毫秒
             final long longPollingInitialDelayInMills = m_configUtil.getLongPollingInitialDelayInMills();
             // 提交长轮询任务 该任务会持续且循环执行
@@ -214,11 +214,11 @@ public class RemoteConfigLongPollService {
             String url = null;
             try {
                 // 获得Apollo Server的地址
-                if (lastServiceDto == null) {
-                    lastServiceDto = this.resolveConfigService();
+                if (lastServiceDto == null) { // 如果之前的Config Service地址为空, 则获得Config Service的地址
+                    lastServiceDto = this.resolveConfigService(); // 获得Config Service的地址：ServiceDTO{appName='APOLLO-CONFIGSERVICE', instanceId='localhost:apollo-configservice:8080', homepageUrl='http://192.168.254.1:8080/'}
                 }
 
-                // 组装长轮询通知变更的地址
+                // 组装长轮询通知变更的地址： http://192.168.254.1:8080/notifications/v2?cluster=default&appId=fix-server&ip=192.168.254.1&notifications=%5B%7B%22namespaceName%22%3A%22OesSiteExecRptAssignedRouteKeys%22%2C%22notificationId%22%3A-1%7D%2C%7B%22namespaceName%22%3A%22application%22%2C%22notificationId%22%3A10%7D%2C%7B%22namespaceName%22%3A%22OrderEntryAssignedRouteKeys%22%2C%22notificationId%22%3A-1%7D%5D
                 url =
                         assembleLongPollRefreshUrl(lastServiceDto.getHomepageUrl(), appId, cluster, dataCenter,
                                 m_notifications);
@@ -235,17 +235,17 @@ public class RemoteConfigLongPollService {
 
                 transaction.addData("Url", url);
 
-                // 发起请求,返回HttpResponse对象
+                // 发起请求,返回HttpResponse对象，返回中为每个namespace设置一个通知id，客户端通过id向服务端获取最新配置
                 final HttpResponse<List<ApolloConfigNotification>> response =
                         m_httpClient.doGet(request, m_responseType);
 
                 logger.debug("Long polling response: {}, url: {}", response.getStatusCode(), url);
                 // 有新的通知,刷新本地的缓存
                 if (response.getStatusCode() == 200 && response.getBody() != null) {
-                    updateNotifications(response.getBody());
+                    updateNotifications(response.getBody()); // ApolloConfigNotification{namespaceName='application', notificationId=11}
                     updateRemoteNotifications(response.getBody());
                     transaction.addData("Result", response.getBody().toString());
-                    // 通知对应的RemoteConfigRepository们
+                    // 通知对应的RemoteConfigRepository
                     notify(lastServiceDto, response.getBody());
                 }
 
@@ -277,23 +277,23 @@ public class RemoteConfigLongPollService {
             }
         }
     }
-
+    // lastServiceDto: ServiceDTO{appName='APOLLO-CONFIGSERVICE', instanceId='localhost:apollo-configservice:8080', homepageUrl='http://192.168.254.1:8080/'}    notifications: [ApolloConfigNotification{namespaceName='application', notificationId=11}]
     private void notify(ServiceDTO lastServiceDto, List<ApolloConfigNotification> notifications) {
         if (notifications == null || notifications.isEmpty()) {
             return;
         }
         for (ApolloConfigNotification notification : notifications) {
-            String namespaceName = notification.getNamespaceName();
+            String namespaceName = notification.getNamespaceName(); // application
             // 创建新的RemoteConfigRepository数组，避免并发问题
-            List<RemoteConfigRepository> toBeNotified =
-                    Lists.newArrayList(m_longPollNamespaces.get(namespaceName));
+            List<RemoteConfigRepository> toBeNotified = // 获得要通知的RemoteConfigRepository数组
+                    Lists.newArrayList(m_longPollNamespaces.get(namespaceName)); // toBeNotified: [RemoteConfigRepository@8026]
             // 获得远程的ApolloNotificationMessages对象并克隆
-            ApolloNotificationMessages originalMessages = m_remoteNotificationMessages.get(namespaceName);
+            ApolloNotificationMessages originalMessages = m_remoteNotificationMessages.get(namespaceName); // originalMessages: ApolloNotificationMessages{fix-server+default+application -> {Long@8026} 11}
             ApolloNotificationMessages remoteMessages = originalMessages == null ? null : originalMessages.clone();
             //since .properties are filtered out by default, so we need to check if there is any listener for it
             toBeNotified.addAll(m_longPollNamespaces
                     .get(String.format("%s.%s", namespaceName, ConfigFileFormat.Properties.getValue())));
-            // 循环RemoteConfigRepository进行通知
+            // 循环要通知的RemoteConfigRepository进行通知
             for (RemoteConfigRepository remoteConfigRepository : toBeNotified) {
                 try {
                     // 回调 RemoteConfigRepository.onLongPollNotified 方法，让其重新拉取最新的配置
@@ -306,17 +306,17 @@ public class RemoteConfigLongPollService {
     }
 
 
-    private void updateNotifications(List<ApolloConfigNotification> deltaNotifications) {
+    private void updateNotifications(List<ApolloConfigNotification> deltaNotifications) { // ApolloConfigNotification{namespaceName='application', notificationId=11}
         for (ApolloConfigNotification notification : deltaNotifications) {
             if (Strings.isNullOrEmpty(notification.getNamespaceName())) {
                 continue;
             }
-            String namespaceName = notification.getNamespaceName();
+            String namespaceName = notification.getNamespaceName(); // application
             if (m_notifications.containsKey(namespaceName)) {
-                m_notifications.put(namespaceName, notification.getNotificationId());
+                m_notifications.put(namespaceName, notification.getNotificationId()); // 保存通知id
             }
             //since .properties are filtered out by default, so we need to check if there is notification with .properties suffix
-            String namespaceNameWithPropertiesSuffix =
+            String namespaceNameWithPropertiesSuffix = // 格式化为application.properties
                     String.format("%s.%s", namespaceName, ConfigFileFormat.Properties.getValue());
             if (m_notifications.containsKey(namespaceNameWithPropertiesSuffix)) {
                 m_notifications.put(namespaceNameWithPropertiesSuffix, notification.getNotificationId());
@@ -333,15 +333,15 @@ public class RemoteConfigLongPollService {
             if (notification.getMessages() == null || notification.getMessages().isEmpty()) {
                 continue;
             }
-
+            // 获取本地保存的ApolloNotificationMessages对象：fix-server+default+application -> {Long@8079} 10
             ApolloNotificationMessages localRemoteMessages =
                     m_remoteNotificationMessages.get(notification.getNamespaceName());
             if (localRemoteMessages == null) {
                 localRemoteMessages = new ApolloNotificationMessages();
                 m_remoteNotificationMessages.put(notification.getNamespaceName(), localRemoteMessages);
             }
-
-            localRemoteMessages.mergeFrom(notification.getMessages());
+            // notification.getMessages()=fix-server+default+application -> {Long@8026} 11
+            localRemoteMessages.mergeFrom(notification.getMessages()); // 合并，更新本地配置
         }
     }
 
@@ -383,12 +383,12 @@ public class RemoteConfigLongPollService {
     }
 
     private ServiceDTO resolveConfigService() {
-        List<ServiceDTO> configServices = this.getConfigServices();
+        List<ServiceDTO> configServices = this.getConfigServices(); // 元数据服务列表
         return this.configServiceLoadBalancerClient.chooseOneFrom(configServices);
     }
 
     private List<ServiceDTO> getConfigServices() {
-        List<ServiceDTO> services = m_serviceLocator.getConfigServices();
+        List<ServiceDTO> services = m_serviceLocator.getConfigServices(); // ServiceDTO{appName='APOLLO-CONFIGSERVICE', instanceId='localhost:apollo-configservice:8080', homepageUrl='http://192.168.254.1:8080/'}
         if (services.size() == 0) {
             throw new ApolloConfigException("No available config service");
         }

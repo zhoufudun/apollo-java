@@ -54,12 +54,12 @@ public abstract class AbstractConfig implements Config {
     private static final Logger logger = LoggerFactory.getLogger(AbstractConfig.class);
 
     private static final ExecutorService m_executorService;
-
+    // 举例：[com.ctrip.framework.apollo.spring.config.PropertySourcesProcessor$$Lambda/0x000001e1a7389c30@397c6537, com.ctrip.framework.apollo.spring.annotation.ApolloAnnotationProcessor$1@27db2b1d]
     private final List<ConfigChangeListener> m_listeners = Lists.newCopyOnWriteArrayList();
-    // key -> listener
+    // key -> listener  举例：{com.ctrip.framework.apollo.spring.annotation.ApolloAnnotationProcessor$1@1d1fe980=[key]}
     private final Map<ConfigChangeListener, Set<String>> m_interestedKeys = Maps.newConcurrentMap();
 
-    // listener -> key prefix
+    // listener -> key prefix  举例：{com.ctrip.framework.apollo.spring.annotation.ApolloAnnotationProcessor$1@1d1fe980=[k]}
     private final Map<ConfigChangeListener, Set<String>> m_interestedKeyPrefixes = Maps.newConcurrentMap();
     private final ConfigUtil m_configUtil;
     private volatile Cache<String, Integer> m_integerCache;

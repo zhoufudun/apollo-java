@@ -53,8 +53,8 @@ public class LocalFileConfigRepository extends AbstractConfigRepository
     private final String m_namespace;
     private File m_baseDir;
     private final ConfigUtil m_configUtil;
-    private volatile Properties m_fileProperties;
-    private volatile ConfigRepository m_upstream;
+    private volatile Properties m_fileProperties; // 当前namespace本地之前缓存的属性：{name=zhoufudun, key={"name":"zzz223"}}
+    private volatile ConfigRepository m_upstream; // com.ctrip.framework.apollo.internals.RemoteConfigRepository
 
     private volatile ConfigSourceType m_sourceType = ConfigSourceType.LOCAL;
 
@@ -137,11 +137,11 @@ public class LocalFileConfigRepository extends AbstractConfigRepository
      */
     @Override
     public void onRepositoryChange(String namespace, Properties newProperties) {
-        if (newProperties.equals(m_fileProperties)) {
+        if (newProperties.equals(m_fileProperties)) { // 配置未发生变更，返回
             return;
         }
         Properties newFileProperties = propertiesFactory.getPropertiesInstance();
-        newFileProperties.putAll(newProperties);
+        newFileProperties.putAll(newProperties); // 将最新配置赋值给 newFileProperties
         // 将最新配置写入本地文件
         updateFileProperties(newFileProperties, m_upstream.getSourceType());
         // 回调 DefaultConfig.onRepositoryChange 方法
@@ -201,8 +201,8 @@ public class LocalFileConfigRepository extends AbstractConfigRepository
         if (newProperties.equals(m_fileProperties)) {
             return;
         }
-        this.m_fileProperties = newProperties;
-        persistLocalCacheFile(m_baseDir, m_namespace);
+        this.m_fileProperties = newProperties; // 将最新配置赋值给 m_fileProperties
+        persistLocalCacheFile(m_baseDir, m_namespace); // 将最新配置写入本地文件
     }
 
     private Properties loadFromLocalCacheFile(File baseDir, String namespace) throws IOException {
@@ -299,7 +299,7 @@ public class LocalFileConfigRepository extends AbstractConfigRepository
     }
 
     File assembleLocalCacheFile(File baseDir, String namespace) {
-        String fileName =
+        String fileName = // fix-server+default+application.properties
                 String.format("%s.properties", Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
                         .join(m_configUtil.getAppId(), m_configUtil.getCluster(), namespace));
         return new File(baseDir, fileName);

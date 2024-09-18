@@ -61,7 +61,7 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
     private final SpringValueRegistry springValueRegistry;
 
     private BeanFactory beanFactory;
-    private Multimap<String, SpringValueDefinition> beanName2SpringValueDefinitions;
+    private Multimap<String, SpringValueDefinition> beanName2SpringValueDefinitions; // key=BeanDefinitionRegistry， value=List<SpringValueDefinition>
 
     public SpringValueProcessor() {
         configUtil = ApolloInjector.getInstance(ConfigUtil.class);
@@ -69,13 +69,19 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
         springValueRegistry = SpringInjector.getInstance(SpringValueRegistry.class);
         beanName2SpringValueDefinitions = LinkedListMultimap.create();
     }
-
+    /**
+     * postProcessBeanFactory 方法会在 postProcessBeforeInitialization 方法之前执行。
+     * 在 Spring 框架中，BeanFactoryPostProcessor 接口的 postProcessBeanFactory 方法是在 Spring 容器加载了所有的 Bean 定义之后，但在 Bean 实例化之前被调用的。这个方法主要用于修改 Bean 的定义，例如修改 Bean 的属性值、添加或者移除 Bean 等。
+     * 而 postProcessBeforeInitialization 方法是在 BeanPostProcessor 接口中定义的，它在 Spring 容器实例化每个 Bean 之后，在调用 Bean 的初始化方法（如 afterPropertiesSet 或自定义的初始化方法）之前被调用。这个方法主要用于在 Bean 初始化之前对其进行一些额外的处理，例如检查或修改 Bean 的属性值等。
+     * 在你的代码中，SpringValueProcessor 类实现了 BeanFactoryPostProcessor 和 BeanPostProcessor 接口，因此它的 postProcessBeanFactory 方法会在所有 Bean 定义被加载后立即执行，而 postProcessBeforeInitialization 方法会在每个 Bean 实例化之后执行。
+     * 总结来说，postProcessBeanFactory 方法先执行，因为它是在 Bean 定义加载后但在 Bean 实例化前调用的；而 postProcessBeforeInitialization 方法后执行，因为它是在 Bean 实例化后但在初始化前调用的
+     */
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
             throws BeansException {
         if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled() && beanFactory instanceof BeanDefinitionRegistry) {
-            beanName2SpringValueDefinitions = SpringValueDefinitionProcessor
-                    .getBeanName2SpringValueDefinitions((BeanDefinitionRegistry) beanFactory);
+            beanName2SpringValueDefinitions = SpringValueDefinitionProcessor.getBeanName2SpringValueDefinitions((BeanDefinitionRegistry) beanFactory);
+
         }
     }
 
@@ -119,17 +125,17 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
 
         doRegister(bean, beanName, method, value);
     }
-
+    // 创建一个 SpringValue 对象，并将其注册到 springValueRegistry 中，后续用于配置更新。
     private void doRegister(Object bean, String beanName, Member member, Value value) {
-        Set<String> keys = placeholderHelper.extractPlaceholderKeys(value.value());
+        Set<String> keys = placeholderHelper.extractPlaceholderKeys(value.value()); // [order.entry.namespace]
         if (keys.isEmpty()) {
             return;
         }
-
+        // [order.entry.namespace]
         for (String key : keys) {
             SpringValue springValue;
             if (member instanceof Field) {
-                Field field = (Field) member;
+                Field field = (Field) member; // private java.lang.String com.ctrip.framework.apollo.use.cases.spring.boot.apollo.controller.AssignedRoutingKeyController.orderEntry2Namespace
                 springValue = new SpringValue(key, value.value(), bean, beanName, field, false);
             } else if (member instanceof Method) {
                 Method method = (Method) member;

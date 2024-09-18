@@ -60,7 +60,7 @@ public class ConfigUtil {
     private TimeUnit refreshIntervalTimeUnit = TimeUnit.MINUTES;
     private int connectTimeout = 1000; //1 second
     private int readTimeout = 5000; //5 seconds
-    private String cluster;
+    private String cluster; // default
     private int loadConfigQPS = 2; //2 times per second
     private int longPollQPS = 2; //2 times per second
     //for on error retry
@@ -71,13 +71,13 @@ public class ConfigUtil {
     private long configCacheExpireTime = 1;//1 minute
     private TimeUnit configCacheExpireTimeUnit = TimeUnit.MINUTES;//1 minute
     private long longPollingInitialDelayInMills = 2000;//2 seconds
-    private boolean autoUpdateInjectedSpringProperties = true;
+    private boolean autoUpdateInjectedSpringProperties = true; // 允许自动更新spring注入的属性
     private final RateLimiter warnLogRateLimiter;
-    private boolean propertiesOrdered = false;
+    private boolean propertiesOrdered = false; // 是否允许属性有序
     private boolean propertyNamesCacheEnabled = false;
     private boolean propertyFileCacheEnabled = true;
     private boolean overrideSystemProperties = true;
-
+    // 相关配值信息初始化
     public ConfigUtil() {
         warnLogRateLimiter = RateLimiter.create(0.017); // 1 warning log output per minute
         initRefreshInterval();
@@ -182,7 +182,7 @@ public class ConfigUtil {
     private void initConnectTimeout() {
         String customizedConnectTimeout = System.getProperty("apollo.connectTimeout");
         if (!Strings.isNullOrEmpty(customizedConnectTimeout)) {
-            try {
+            try { // 1s超时时间
                 connectTimeout = Integer.parseInt(customizedConnectTimeout);
             } catch (Throwable ex) {
                 logger.error("Config for apollo.connectTimeout is invalid: {}", customizedConnectTimeout);
@@ -212,7 +212,7 @@ public class ConfigUtil {
     private void initRefreshInterval() {
         String customizedRefreshInterval = System.getProperty("apollo.refreshInterval");
         if (!Strings.isNullOrEmpty(customizedRefreshInterval)) {
-            try {
+            try { // 默认5s 向配置中心主动拉去一次最新配置
                 refreshInterval = Integer.parseInt(customizedRefreshInterval);
             } catch (Throwable ex) {
                 logger.error("Config for apollo.refreshInterval is invalid: {}", customizedRefreshInterval);

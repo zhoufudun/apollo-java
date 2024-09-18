@@ -31,7 +31,7 @@ import com.google.common.collect.Maps;
  */
 public class DefaultConfigManager implements ConfigManager {
     private ConfigFactoryManager m_factoryManager;
-
+    // {OesSiteExecRptAssignedRouteKeys=com.ctrip.framework.apollo.internals.DefaultConfig@232b45a1, application=com.ctrip.framework.apollo.internals.DefaultConfig@55227290, OrderEntryAssignedRouteKeys=com.ctrip.framework.apollo.internals.DefaultConfig@63000c7c}
     private Map<String, Config> m_configs = Maps.newConcurrentMap();
     private Map<String, Object> m_configLocks = Maps.newConcurrentMap();
     private Map<String, ConfigFile> m_configFiles = Maps.newConcurrentMap();

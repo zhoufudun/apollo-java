@@ -21,17 +21,18 @@ import com.ctrip.framework.foundation.spi.provider.Provider;
 
 public interface ProviderManager extends Ordered {
 
-  String getProperty(String name, String defaultValue);
+    String getProperty(String name, String defaultValue);
 
-  <T extends Provider> T provider(Class<T> clazz);
+    <T extends Provider> T provider(Class<T> clazz);
 
-  /**
-   * @since 2.3.0
-   */
-  default void initialize() {}
+    /**
+     * @since 2.3.0
+     */
+    default void initialize() {
+    }
 
-  @Override
-  default int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE;
-  }
+    @Override
+    default int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE;
+    }
 }

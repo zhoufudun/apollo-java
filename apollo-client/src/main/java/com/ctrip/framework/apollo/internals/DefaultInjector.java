@@ -50,7 +50,7 @@ public class DefaultInjector implements Injector {
 
     public DefaultInjector() {
         try {
-            m_injector = Guice.createInjector(new ApolloModule());
+            m_injector = Guice.createInjector(new ApolloModule()); // 创建一个 Guice 注入器
             m_customizers = ServiceBootstrap.loadAllOrdered(ApolloInjectorCustomizer.class);
         } catch (Throwable ex) {
             ApolloConfigException exception = new ApolloConfigException("Unable to initialize Guice Injector!", ex);
@@ -79,6 +79,7 @@ public class DefaultInjector implements Injector {
     @Override
     public <T> T getInstance(Class<T> clazz, String name) {
         try {
+            // 遍历所有的 ApolloInjectorCustomizer 实现类，调用它们的 getInstance 方法来获取实例
             for (ApolloInjectorCustomizer customizer : m_customizers) {
                 T instance = customizer.getInstance(clazz, name);
                 if (instance != null) {

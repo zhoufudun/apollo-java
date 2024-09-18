@@ -117,9 +117,9 @@ public class ApolloApplicationContextInitializer implements
 
 
     @Override
-    public void initialize(ConfigurableApplicationContext context) {
+    public void initialize(ConfigurableApplicationContext context) { // org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext
+        // ApplicationServletEnvironment {activeProfiles=[], defaultProfiles=[default], propertySources=[ConfigurationPropertySourcesPropertySource {name='configurationProperties'}, CompositePropertySource {name='ApolloBootstrapPropertySources', propertySources=[ConfigPropertySource {name='application'}]}, StubPropertySource {name='servletConfigInitParams'}, StubPropertySource {name='servletContextInitParams'}, PropertiesPropertySource {name='systemProperties'}, OriginAwareSystemEnvironmentPropertySource {name='systemEnvironment'}, RandomValuePropertySource {name='random'}, OriginTrackedMapPropertySource {name='Config resource 'class path resource [application.properties]' via location 'optional:classpath:/''}]}
         ConfigurableEnvironment environment = context.getEnvironment();
-
         // 判断是否配置了 apollo.bootstrap.enabled=true
         if (!environment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED, Boolean.class, false)) {
             logger.debug("Apollo bootstrap config is not enabled for context {}, see property: ${{}}", context, PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED);
@@ -140,7 +140,7 @@ public class ApolloApplicationContextInitializer implements
      * @param environment
      */
     protected void initialize(ConfigurableEnvironment environment) {
-        final ConfigUtil configUtil = ApolloInjector.getInstance(ConfigUtil.class);
+        final ConfigUtil configUtil = ApolloInjector.getInstance(ConfigUtil.class); // 获取单例之前初始化ConfigUtil
         if (environment.getPropertySources().contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
             // 已经初始化，重播日志系统初始化之前打印的日志
             DeferredLogger.replayTo();
@@ -169,7 +169,7 @@ public class ApolloApplicationContextInitializer implements
         }
         for (String namespace : namespaceList) {
             // 从远端拉去命名空间对应的配置
-            Config config = ConfigService.getConfig(namespace);
+            Config config = ConfigService.getConfig(namespace); // DefaultConfig
             // 调用ConfigPropertySourceFactory#getConfigPropertySource() 缓存从远端拉取的配置，并将其包装为 PropertySource，
             // 最终将所有拉取到的远端配置聚合到一个以 ApolloBootstrapPropertySources 为 key 的属性源包装类 CompositePropertySource 的内部
             composite.addPropertySource(configPropertySourceFactory.getConfigPropertySource(namespace, config));
@@ -198,7 +198,7 @@ public class ApolloApplicationContextInitializer implements
             fillSystemPropertyFromEnvironment(environment, propertyName);
         }
     }
-
+    // 从环境中获取指定属性名的属性值，并将其设置为系统属性
     private void fillSystemPropertyFromEnvironment(ConfigurableEnvironment environment, String propertyName) {
         if (System.getProperty(propertyName) != null) {
             return;
@@ -227,7 +227,7 @@ public class ApolloApplicationContextInitializer implements
      */
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment configurableEnvironment, SpringApplication springApplication) {
-
+        // 首先，你应该始终在最前面初始化系统属性，比如app.id
         // should always initialize system properties like app.id in the first place
         initializeSystemProperty(configurableEnvironment);
 
@@ -244,7 +244,7 @@ public class ApolloApplicationContextInitializer implements
         Boolean bootstrapEnabled = configurableEnvironment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED, Boolean.class, false);
 
         if (bootstrapEnabled) {
-            DeferredLogger.enable();
+            DeferredLogger.enable(); // 用于启用延迟日志记录
             // 初始化Apollo配置，内部会加载Apollo Server配置
             initialize(configurableEnvironment);
         }

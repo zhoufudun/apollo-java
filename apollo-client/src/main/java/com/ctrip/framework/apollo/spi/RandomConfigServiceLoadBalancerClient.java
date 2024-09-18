@@ -17,30 +17,33 @@
 package com.ctrip.framework.apollo.spi;
 
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
+
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * default service provider of {@link ConfigServiceLoadBalancerClient}
+ *
+ * 如何从配置中心列表中选择一个服务实例，进行配置查询（主动查询+长轮训）
  */
 public class RandomConfigServiceLoadBalancerClient implements ConfigServiceLoadBalancerClient {
 
-  private static final int ORDER = 0;
+    private static final int ORDER = 0;
 
-  @Override
-  public ServiceDTO chooseOneFrom(List<ServiceDTO> configServices) {
-    if (null == configServices) {
-      throw new IllegalArgumentException("arg is null");
+    @Override
+    public ServiceDTO chooseOneFrom(List<ServiceDTO> configServices) {
+        if (null == configServices) {
+            throw new IllegalArgumentException("arg is null");
+        }
+        if (configServices.isEmpty()) {
+            throw new IllegalArgumentException("arg is empty");
+        }
+        int index = ThreadLocalRandom.current().nextInt(configServices.size());
+        return configServices.get(index);
     }
-    if (configServices.isEmpty()) {
-      throw new IllegalArgumentException("arg is empty");
-    }
-    int index = ThreadLocalRandom.current().nextInt(configServices.size());
-    return configServices.get(index);
-  }
 
-  @Override
-  public int getOrder() {
-    return ORDER;
-  }
+    @Override
+    public int getOrder() {
+        return ORDER;
+    }
 }

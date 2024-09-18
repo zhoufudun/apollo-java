@@ -79,7 +79,8 @@ public class BeanRegistrationUtil {
                 }
             }
         }
-
+        // 举例：Generic bean: class [com.ctrip.framework.apollo.spring.annotation.SpringValueProcessor]; scope=; abstract=false; lazyInit=null; autowireMode=0; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=null; factoryMethodName=null; initMethodName=null; destroyMethodName=null
+        // 举例：Generic bean: class [com.ctrip.framework.apollo.spring.annotation.ApolloAnnotationProcessor]; scope=; abstract=false; lazyInit=null; autowireMode=0; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=null; factoryMethodName=null; initMethodName=null; destroyMethodName=null
         BeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(beanClass).getBeanDefinition();
 
         if (extraPropertyValues != null) {

@@ -44,34 +44,51 @@ public class SpringValue {
     private Class<?> targetType;
     private Type genericType;
     private boolean isJson;
-
+    // 使用注入属性的时候使用
     public SpringValue(String key, String placeholder, Object bean, String beanName, Field field, boolean isJson) {
-        this.beanRef = new WeakReference<>(bean);
-        this.beanName = beanName;
-        this.field = field;
-        this.key = key;
-        this.placeholder = placeholder;
-        this.targetType = field.getType();
-        this.isJson = isJson;
+        this.beanRef = new WeakReference<>(bean); // 弱引用，有个定时任务【com.ctrip.framework.apollo.spring.property.SpringValueRegistry.scanAndClean】回收，防止内存泄漏，bean=com.ctrip.framework.apollo.use.cases.spring.boot.apollo.controller.AssignedRoutingKeyController
+        this.beanName = beanName; // assignedRoutingKeyController
+        this.field = field; // private java.lang.String com.ctrip.framework.apollo.use.cases.spring.boot.apollo.controller.AssignedRoutingKeyController.orderEntry2Namespace
+        this.key = key; // order.entry.namespace
+        this.placeholder = placeholder; // ${order.entry.namespace:OrderEntryAssignedRouteKeys}
+        this.targetType = field.getType(); // java.lang.String
+        this.isJson = isJson; // false
         if (isJson) {
-            this.genericType = field.getGenericType();
+            this.genericType = field.getGenericType(); // private java.lang.String com.ctrip.framework.apollo.use.cases.spring.boot.apollo.controller.AssignedRoutingKeyController.orderEntry2Namespace
         }
     }
 
+    /**
+     * 使用注入方法的时候使用
+     *
+     * @param key student
+     * @param placeholder ${student}
+     * @param bean com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application$$EnhancerBySpringCGLIB$$3bed99d4@3502017d
+     * @param beanName application
+     * @param method public void com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application.setValue3(com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application$Student)
+     * @param isJson true
+     */
     public SpringValue(String key, String placeholder, Object bean, String beanName, Method method, boolean isJson) {
         this.beanRef = new WeakReference<>(bean);
-        this.beanName = beanName;
-        this.methodParameter = new MethodParameter(method, 0);
-        this.key = key;
-        this.placeholder = placeholder;
-        Class<?>[] paramTps = method.getParameterTypes();
-        this.targetType = paramTps[0];
-        this.isJson = isJson;
+        this.beanName = beanName; //application
+        this.methodParameter = new MethodParameter(method, 0); //
+        this.key = key; //student
+        this.placeholder = placeholder; // ${student}
+        Class<?>[] paramTps = method.getParameterTypes(); // class com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application$Student
+        this.targetType = paramTps[0]; // class com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application$Student
+        this.isJson = isJson; // true
         if (isJson) {
-            this.genericType = method.getGenericParameterTypes()[0];
+            this.genericType = method.getGenericParameterTypes()[0]; // class com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application$Student
         }
     }
 
+    /**
+     * 其实就是使用反射机制运行时修改 Bean 对象中的成员变量，至此自动更新完成
+     *
+     * @param newVal
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     public void update(Object newVal) throws IllegalAccessException, InvocationTargetException {
         if (isField()) {
             injectField(newVal);

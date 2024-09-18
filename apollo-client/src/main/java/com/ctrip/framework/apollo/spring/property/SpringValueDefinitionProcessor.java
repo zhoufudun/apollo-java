@@ -40,7 +40,7 @@ import com.google.common.collect.Multimap;
 
 /**
  * To process xml config placeholders, e.g.
- *
+ * 这个类会为了处理xml配置的占位符
  * <pre>
  *  &lt;bean class=&quot;com.ctrip.framework.apollo.demo.spring.xmlConfigDemo.bean.XmlBean&quot;&gt;
  *    &lt;property name=&quot;timeout&quot; value=&quot;${timeout:200}&quot;/&gt;
@@ -49,6 +49,7 @@ import com.google.common.collect.Multimap;
  * </pre>
  */
 public class SpringValueDefinitionProcessor implements BeanDefinitionRegistryPostProcessor {
+    // key举例：org.springframework.beans.factory.support.DefaultListableBeanFactory
     private static final Map<BeanDefinitionRegistry, Multimap<String, SpringValueDefinition>> beanName2SpringValueDefinitions =
             Maps.newConcurrentMap();
     private static final Set<BeanDefinitionRegistry> PROPERTY_VALUES_PROCESSED_BEAN_FACTORIES = Sets.newConcurrentHashSet();
@@ -74,9 +75,7 @@ public class SpringValueDefinitionProcessor implements BeanDefinitionRegistryPos
     }
 
     public static Multimap<String, SpringValueDefinition> getBeanName2SpringValueDefinitions(BeanDefinitionRegistry registry) {
-        Multimap<String, SpringValueDefinition> springValueDefinitions = beanName2SpringValueDefinitions.computeIfAbsent(
-                registry, k -> LinkedListMultimap.create());
-
+        Multimap<String, SpringValueDefinition> springValueDefinitions = beanName2SpringValueDefinitions.computeIfAbsent(registry, k -> LinkedListMultimap.create());
         return springValueDefinitions;
     }
 
@@ -95,7 +94,7 @@ public class SpringValueDefinitionProcessor implements BeanDefinitionRegistryPos
         String[] beanNames = beanRegistry.getBeanDefinitionNames();
         for (String beanName : beanNames) {
             BeanDefinition beanDefinition = beanRegistry.getBeanDefinition(beanName);
-            MutablePropertyValues mutablePropertyValues = beanDefinition.getPropertyValues();
+            MutablePropertyValues mutablePropertyValues = beanDefinition.getPropertyValues(); // 获取BeanDefinition的所有属性值和属性名称列表
             List<PropertyValue> propertyValues = mutablePropertyValues.getPropertyValueList();
             for (PropertyValue propertyValue : propertyValues) {
                 Object value = propertyValue.getValue();

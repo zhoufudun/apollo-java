@@ -77,7 +77,7 @@ public class DefaultConfigFactory implements ConfigFactory {
     @Override
     public Config create(String namespace) {
         // 确定本地配置缓存文件的格式。对于格式不是属性的命名空间，必须提供文件扩展名，例如application.yaml
-        ConfigFileFormat format = determineFileFormat(namespace);
+        ConfigFileFormat format = determineFileFormat(namespace); // 默认application
 
         ConfigRepository configRepository = null;
 

@@ -50,11 +50,11 @@ import com.google.common.util.concurrent.RateLimiter;
 public class DefaultConfig extends AbstractConfig implements RepositoryChangeListener {
 
     private static final Logger logger = DeferredLoggerFactory.getLogger(DefaultConfig.class);
-    private final String m_namespace;
+    private final String m_namespace; // 配置的命名空间
     private final Properties m_resourceProperties;
-    private final AtomicReference<Properties> m_configProperties;
-    private final ConfigRepository m_configRepository;
-    private final RateLimiter m_warnLogRateLimiter;
+    private final AtomicReference<Properties> m_configProperties; // {name=zhoufudun, key={"name":"zzz223"}}
+    private final ConfigRepository m_configRepository; // LocalFileConfigRepository
+    private final RateLimiter m_warnLogRateLimiter; // RateLimiter 是一个令牌桶算法实现，用于限制对某个资源的访问速率。
 
     private volatile ConfigSourceType m_sourceType = ConfigSourceType.NONE;
 
@@ -223,13 +223,13 @@ public class DefaultConfig extends AbstractConfig implements RepositoryChangeLis
     @Override
     public synchronized void onRepositoryChange(String namespace, Properties newProperties) {
         // 如果属性配置未发生变更，则直接退出
-        if (newProperties.equals(m_configProperties.get())) {
+        if (newProperties.equals(m_configProperties.get())) { // newProperties={student={"name":"zhoufudn","age":20}, name=zhoufudun, keyName=key, key=keyName2}
             return;
         }
         // 获取配置源类型，默认情况下 这里是 LocalFileConfigRepository
-        ConfigSourceType sourceType = m_configRepository.getSourceType();
+        ConfigSourceType sourceType = m_configRepository.getSourceType(); // REMOTE
         Properties newConfigProperties = propertiesFactory.getPropertiesInstance();
-        newConfigProperties.putAll(newProperties);
+        newConfigProperties.putAll(newProperties); // 保存最新远程配置=newConfigProperties={student={"name":"zhoufudn","age":20}, name=zhoufudun, keyName=key, key=keyName}
 
         // 更新配置缓存，并计算实际发生变更的key， key为发生变更的配置key，value是发生变更的配置信息
         Map<String, ConfigChange> actualChanges = updateAndCalcConfigChanges(newConfigProperties,

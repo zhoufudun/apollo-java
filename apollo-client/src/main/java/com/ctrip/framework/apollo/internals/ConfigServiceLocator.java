@@ -56,7 +56,7 @@ public class ConfigServiceLocator {
     private static final Logger logger = DeferredLoggerFactory.getLogger(ConfigServiceLocator.class);
     private HttpClient m_httpClient;
     private ConfigUtil m_configUtil;
-    private AtomicReference<List<ServiceDTO>> m_configServices;
+    private AtomicReference<List<ServiceDTO>> m_configServices; // 元数据中心地址[ServiceDTO{appName='APOLLO-CONFIGSERVICE', instanceId='localhost:apollo-configservice:8080', homepageUrl='http://192.168.254.1:8080/'}]
     private Type m_responseType;
     private ScheduledExecutorService m_executorService;
     /**
@@ -96,8 +96,8 @@ public class ConfigServiceLocator {
         }
 
         // update from meta service
-        this.tryUpdateConfigServices();
-        this.schedulePeriodicRefresh();
+        this.tryUpdateConfigServices(); // 从元数据服务获取配置中心地址
+        this.schedulePeriodicRefresh(); // 定期从元数据服务获取配置中心地址
     }
 
     private List<ServiceDTO> getCustomizedConfigService() {
@@ -230,12 +230,12 @@ public class ConfigServiceLocator {
         return this.m_discoveryRateLimiter.tryAcquire();
     }
 
-    private synchronized void updateConfigServices() {
+    private synchronized void updateConfigServices() { // 从元数据中心获取配置中心地址列表
         if (!tryAcquireForUpdate()) {
             // quick return without wait
             return;
         }
-        String url = assembleMetaServiceUrl();
+        String url = assembleMetaServiceUrl(); // http://127.0.0.1:8080/services/config?appId=fix-server&ip=192.168.254.1
 
         HttpRequest request = new HttpRequest(url);
 
@@ -244,14 +244,14 @@ public class ConfigServiceLocator {
 
         int maxRetries = 2;
         Throwable exception = null;
-
+        // 从配置中心获取所有服务地址
         for (int i = 0; i < maxRetries; i++) {
             Transaction transaction = Tracer.newTransaction("Apollo.MetaService", "getConfigService");
             transaction.addData("Url", url);
             try {
                 HttpResponse<List<ServiceDTO>> response = m_httpClient.doGet(request, m_responseType);
                 transaction.setStatus(Transaction.SUCCESS);
-                List<ServiceDTO> services = response.getBody();
+                List<ServiceDTO> services = response.getBody(); // ServiceDTO{appName='APOLLO-CONFIGSERVICE', instanceId='localhost:apollo-configservice:8080', homepageUrl='http://192.168.254.1:8080/'}
                 if (services == null || services.isEmpty()) {
                     logConfigService("Empty response!");
                     continue;
@@ -283,9 +283,9 @@ public class ConfigServiceLocator {
     }
 
     private String assembleMetaServiceUrl() {
-        String domainName = m_configUtil.getMetaServerDomainName();
-        String appId = m_configUtil.getAppId();
-        String localIp = m_configUtil.getLocalIp();
+        String domainName = m_configUtil.getMetaServerDomainName(); // http://127.0.0.1:8080
+        String appId = m_configUtil.getAppId(); // appId=fix-server
+        String localIp = m_configUtil.getLocalIp(); // 192.168.254.1
 
         Map<String, String> queryParams = Maps.newHashMap();
         queryParams.put("appId", queryParamEscaper.escape(appId));

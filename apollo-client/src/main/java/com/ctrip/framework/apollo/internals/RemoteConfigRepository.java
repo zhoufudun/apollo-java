@@ -181,10 +181,10 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
         Transaction transaction = Tracer.newTransaction("Apollo.ConfigService", "syncRemoteConfig");
 
         try {
-            // 缓存的 Apollo服务端配置
-            ApolloConfig previous = m_configCache.get();
+            // 缓存的 Apollo服务端配置，之前缓存的配置
+            ApolloConfig previous = m_configCache.get(); // ApolloConfig{appId='fix-server', cluster='default', namespaceName='application', configurations={name=zhoufudun, key={"name":"zzz"}}, releaseKey='20240914225607-94c9c979ff238727'}
             // 从Apollo Server加载配置
-            ApolloConfig current = loadApolloConfig();
+            ApolloConfig current = loadApolloConfig(); //
 
             //reference equals means HTTP 304
             if (previous != current) {
@@ -217,7 +217,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     private Properties transformApolloConfigToProperties(ApolloConfig apolloConfig) {
         Properties result = propertiesFactory.getPropertiesInstance();
         result.putAll(apolloConfig.getConfigurations());
-        return result;
+        return result; // {student={"name":"zhoufudn","age":20}, name=zhoufudun, keyName=key, key=keyName}
     }
 
     // com.ctrip.framework.apollo.internals.RemoteConfigRepository#loadApolloConfig
@@ -240,7 +240,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
         long onErrorSleepTime = 0; // 0 means no sleep
         Throwable exception = null;
 
-        //获得所有的Apollo Server的地址
+        //获得所有的配置中心的地址
         List<ServiceDTO> configServices = getConfigServices();
         String url = null;
         //循环读取配置重试次数直到成功 每一次都会循环所有的ServiceDTO数组
@@ -267,7 +267,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
                         //ignore
                     }
                 }
-
+                // http://192.168.254.1:8080/configs/fix-server/default/application?ip=192.168.254.1&messages=%7B%22details%22%3A%7B%22fix-server%2Bdefault%2Bapplication%22%3A5%7D%7D&releaseKey=20240914225607-94c9c979ff238727
                 // 组装查询配置的地址
                 url = assembleQueryConfigUrl(configService.getHomepageUrl(), appId, cluster, m_namespace,
                         dataCenter, m_remoteMessages.get(), m_configCache.get());
@@ -288,7 +288,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
                     HttpResponse<ApolloConfig> response = m_httpClient.doGet(request, ApolloConfig.class);
                     // 设置是否强制拉取缓存的标记为false
                     m_configNeedForceRefresh.set(false);
-                    // 标记成功
+                    // 标记成功【重置一下时间】
                     m_loadConfigFailSchedulePolicy.success();
 
                     transaction.addData("StatusCode", response.getStatusCode());
@@ -301,7 +301,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
                     }
 
                     // 有新的配置,进行返回新的ApolloConfig对象
-                    ApolloConfig result = response.getBody();
+                    ApolloConfig result = response.getBody(); // 远程最新配置：ApolloConfig{appId='fix-server', cluster='default', namespaceName='application', configurations={name=zhoufudun, keyName=key, student={"name":"zhoufudn","age":20}, key=keyName}, releaseKey='20240919002213-94c9c979ff172aba'}
 
                     logger.debug("Loaded config for {}: {}", m_namespace, result);
 
@@ -390,11 +390,11 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
         //当RemoteConfigLongPollService长轮询到该RemoteConfigRepository的Namespace下的配置更新时,会回调onLongPollNotified()方法
         remoteConfigLongPollService.submit(m_namespace, this);
     }
-
+    // longPollNotifiedServiceDto: ServiceDTO{appName='APOLLO-CONFIGSERVICE', instanceId='localhost:apollo-configservice:8080', homepageUrl='http://192.168.254.1:8080/'}  remoteMessages= fix-server+default+application -> {Long@8026} 11
     public void onLongPollNotified(ServiceDTO longPollNotifiedServiceDto, ApolloNotificationMessages remoteMessages) {
         //设置长轮询到配置更新的Config Service 下次同步配置时,优先读取该服务
-        m_longPollServiceDto.set(longPollNotifiedServiceDto);
-        m_remoteMessages.set(remoteMessages);
+        m_longPollServiceDto.set(longPollNotifiedServiceDto); // 之后客户端去服务端的时候需要从这里获取
+        m_remoteMessages.set(remoteMessages); // 设置远程消息ApolloNotificationMessages，ApolloNotificationMessages包含namespace下对应的变化，为了个变化分配一个id，本地会通过这个id向配置中获取最新配置
         // 提交同步任务
         m_executorService.submit(new Runnable() {
             @Override

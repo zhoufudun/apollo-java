@@ -25,56 +25,56 @@ import java.util.Map;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ApolloNotificationMessages {
-  private Map<String, Long> details;
+    private Map<String, Long> details; // key=namespaceName, value=notificationId
 
-  public ApolloNotificationMessages() {
-    this(Maps.newTreeMap());
-  }
-
-  private ApolloNotificationMessages(Map<String, Long> details) {
-    this.details = details;
-  }
-
-  public void put(String key, long notificationId) {
-    details.put(key, notificationId);
-  }
-
-  public Long get(String key) {
-    return this.details.get(key);
-  }
-
-  public boolean has(String key) {
-    return this.details.containsKey(key);
-  }
-
-  public boolean isEmpty() {
-    return this.details.isEmpty();
-  }
-
-  public Map<String, Long> getDetails() {
-    return details;
-  }
-
-  public void setDetails(Map<String, Long> details) {
-    this.details = details;
-  }
-
-  public void mergeFrom(ApolloNotificationMessages source) {
-    if (source == null) {
-      return;
+    public ApolloNotificationMessages() {
+        this(Maps.newTreeMap());
     }
 
-    for (Map.Entry<String, Long> entry : source.getDetails().entrySet()) {
-      //to make sure the notification id always grows bigger
-      if (this.has(entry.getKey()) &&
-          this.get(entry.getKey()) >= entry.getValue()) {
-        continue;
-      }
-      this.put(entry.getKey(), entry.getValue());
+    private ApolloNotificationMessages(Map<String, Long> details) {
+        this.details = details;
     }
-  }
 
-  public ApolloNotificationMessages clone() {
-    return new ApolloNotificationMessages(ImmutableMap.copyOf(this.details));
-  }
+    public void put(String key, long notificationId) {
+        details.put(key, notificationId);
+    }
+
+    public Long get(String key) {
+        return this.details.get(key);
+    }
+
+    public boolean has(String key) {
+        return this.details.containsKey(key);
+    }
+
+    public boolean isEmpty() {
+        return this.details.isEmpty();
+    }
+
+    public Map<String, Long> getDetails() {
+        return details;
+    }
+
+    public void setDetails(Map<String, Long> details) {
+        this.details = details;
+    }
+
+    public void mergeFrom(ApolloNotificationMessages source) {
+        if (source == null) {
+            return;
+        }
+        // [fix-server+default+application=4]
+        for (Map.Entry<String, Long> entry : source.getDetails().entrySet()) {
+            //to make sure the notification id always grows bigger，确保notification id是递增的
+            if (this.has(entry.getKey()) &&
+                    this.get(entry.getKey()) >= entry.getValue()) {
+                continue;
+            }
+            this.put(entry.getKey(), entry.getValue());
+        }
+    }
+
+    public ApolloNotificationMessages clone() {
+        return new ApolloNotificationMessages(ImmutableMap.copyOf(this.details));
+    }
 }

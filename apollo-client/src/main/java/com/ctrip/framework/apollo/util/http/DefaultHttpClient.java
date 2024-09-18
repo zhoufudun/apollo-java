@@ -87,6 +87,14 @@ public class DefaultHttpClient implements HttpClient {
         return doGetWithSerializeFunction(httpRequest, convertResponse);
     }
 
+    /**
+     * 用jdk原始的httpclient，实现get请求，并且对返回结果进行反序列化
+     * 原生的没有连接池
+     * @param httpRequest
+     * @param serializeFunction
+     * @return
+     * @param <T>
+     */
     private <T> HttpResponse<T> doGetWithSerializeFunction(HttpRequest httpRequest,
                                                            Function<String, T> serializeFunction) {
         InputStreamReader isr = null;

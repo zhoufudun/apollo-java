@@ -40,20 +40,20 @@ import org.springframework.core.type.AnnotationMetadata;
 public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrarHelper {
     private static final Logger logger = LoggerFactory.getLogger(
             DefaultApolloConfigRegistrarHelper.class);
-
+    // ApplicationServletEnvironment {activeProfiles=[], defaultProfiles=[default], propertySources=[CompositePropertySource {name='ApolloBootstrapPropertySources', propertySources=[ConfigPropertySource {name='application'}]}, ConfigurationPropertySourcesPropertySource {name='configurationProperties'}, StubPropertySource {name='servletConfigInitParams'}, StubPropertySource {name='servletContextInitParams'}, PropertiesPropertySource {name='systemProperties'}, OriginAwareSystemEnvironmentPropertySource {name='systemEnvironment'}, RandomValuePropertySource {name='random'}, OriginTrackedMapPropertySource {name='Config resource 'class path resource [application.properties]' via location 'optional:classpath:/''}]}
     private Environment environment;
-
+    // importingClassMetadata=com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application 这个表示@import注解所在的类的元数据
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         // 获取@EnableApolloConfig 注解
-        AnnotationAttributes attributes = AnnotationAttributes
+        AnnotationAttributes attributes = AnnotationAttributes // {order=2147483647, value=[application, OrderEntryAssignedRouteKeys, OesSiteExecRptAssignedRouteKeys]}
                 .fromMap(importingClassMetadata.getAnnotationAttributes(EnableApolloConfig.class.getName()));
         // 获取@EnableApolloConfig 注解的 value 字段
         final String[] namespaces = attributes.getStringArray("value");
         // 获取@EnableApolloConfig 注解的 order 字段
         final int order = attributes.getNumber("order");
         // 解析@EnableApolloConfig 注解的 value 字段
-        final String[] resolvedNamespaces = this.resolveNamespaces(namespaces);
+        final String[] resolvedNamespaces = this.resolveNamespaces(namespaces); // ["application", "OrderEntryAssig...", "OesSiteExecRptA..."]
         // 注册 namespace 到 PropertySourcesProcessor 中
         PropertySourcesProcessor.addNamespaces(Lists.newArrayList(resolvedNamespaces), order);
         //

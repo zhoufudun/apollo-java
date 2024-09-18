@@ -28,10 +28,10 @@ import org.springframework.core.PriorityOrdered;
 import org.springframework.util.ReflectionUtils;
 
 /**
- * Create by zhangzheng on 2018/2/6
+ * Create by zhangzheng on 2018/2/6  com.ctrip.framework.apollo.spring.annotation.ApolloAnnotationProcessor
  */
 public abstract class ApolloProcessor implements BeanPostProcessor, PriorityOrdered {
-
+    // org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization 方法调用过来
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName)
             throws BeansException {
@@ -41,7 +41,7 @@ public abstract class ApolloProcessor implements BeanPostProcessor, PriorityOrde
             processField(bean, beanName, field);
         }
 
-        for (Method method : findAllMethod(clazz)) {
+        for (Method method : findAllMethod(clazz)) { // method=public void com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application.setValue(java.lang.String)
             processMethod(bean, beanName, method);
         }
         return bean;

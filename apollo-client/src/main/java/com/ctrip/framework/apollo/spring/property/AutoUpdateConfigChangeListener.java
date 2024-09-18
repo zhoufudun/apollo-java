@@ -49,10 +49,10 @@ import org.springframework.util.CollectionUtils;
 
 /**
  * Create by zhangzheng on 2018/3/6
- *
+ * <p>
  * https://www.cnblogs.com/bigcoder84/p/18213911#gallery-2
  * https://www.cnblogs.com/bigcoder84/p/18213911
- *
+ * <p>
  * 在DefaultApolloConfigRegistrarHelper#registerBeanDefinitions
  * 会注册 AutoUpdateConfigChangeListener Bean进入Ioc容器，而该监听器就是用于监听 ApolloConfigChangeEvent 事件，
  * 当属性发生变更调用 AutoUpdateConfigChangeListener#onChange
@@ -112,6 +112,8 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
 
     /**
      * Logic transplanted from DefaultListableBeanFactory
+     * 首先调用 AutoUpdateConfigChangeListener#resolvePropertyValue() 方法借助 SpringBoot 的组件将 @Value 中配置的占位符替换为 PropertySource 中的对应 key 的属性值，
+     * 此处涉及到 Spring 创建 Bean 对象时的属性注入机制，比较复杂，暂不作深入分析
      *
      * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#doResolveDependency(org.springframework.beans.factory.config.DependencyDescriptor,
      * java.lang.String, java.util.Set, org.springframework.beans.TypeConverter)

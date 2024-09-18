@@ -48,8 +48,8 @@ public class PlaceholderHelper {
      */
     public Object resolvePropertyValue(ConfigurableBeanFactory beanFactory, String beanName, String placeholder) {
         // resolve string value
-        String strVal = beanFactory.resolveEmbeddedValue(placeholder);
-
+        String strVal = beanFactory.resolveEmbeddedValue(placeholder); // 使用Spring的BeanFactory来解析占位符
+        // Root bean: class [com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application$$EnhancerBySpringCGLIB$$b783d9ae]; scope=singleton; abstract=false; lazyInit=null; autowireMode=0; dependencyCheck=0; autowireCandidate=true; primary=false; factoryBeanName=null; factoryMethodName=null; initMethodName=null; destroyMethodName=null
         BeanDefinition bd = (beanFactory.containsBean(beanName) ? beanFactory
                 .getMergedBeanDefinition(beanName) : null);
 
@@ -65,7 +65,7 @@ public class PlaceholderHelper {
         Scope scope = (beanDefinition != null ? beanFactory
                 .getRegisteredScope(beanDefinition.getScope()) : null);
         return beanFactory.getBeanExpressionResolver()
-                .evaluate(value, new BeanExpressionContext(beanFactory, scope));
+                .evaluate(value, new BeanExpressionContext(beanFactory, scope)); // 使用BeanExpressionResolver来解析表达式
     }
 
     /**

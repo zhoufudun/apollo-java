@@ -1,6 +1,9 @@
 package com.ctrip.framework.apollo.use.cases.spring.boot.apollo.controller;
 
 import com.ctrip.framework.apollo.Config;
+import com.ctrip.framework.apollo.model.ConfigChangeEvent;
+import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
+import com.ctrip.framework.apollo.spring.events.ApolloConfigChangeEvent;
 import com.ctrip.framework.apollo.use.cases.spring.boot.apollo.JsonResult;
 import com.ctrip.framework.apollo.use.cases.spring.boot.apollo.myConfig.MyConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +95,12 @@ public class AssignedRoutingKeyController {
         // 遍历map获取所有的key和value
         Map<String, String> allKeyValueMap = myConfig.getAllKeyValueMap();
         return JsonResult.ok(allKeyValueMap);
+    }
+
+    @ApolloConfigChangeListener(value = {"application", "OesSiteExecRptAssignedRouteKeys"},interestedKeys = "key",interestedKeyPrefixes = "k")
+    public void listener(ConfigChangeEvent event) {
+        System.out.println(event.changedKeys());
+        System.out.println(event.getNamespace());
     }
 
 }
