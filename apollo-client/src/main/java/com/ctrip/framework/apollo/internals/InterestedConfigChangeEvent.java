@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.model.ConfigChange;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.ctrip.framework.apollo.spring.annotation.ApolloConfigChangeListener;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -33,25 +34,25 @@ import java.util.Set;
  */
 class InterestedConfigChangeEvent extends ConfigChangeEvent {
 
-  /**
-   * @see Config#addChangeListener(ConfigChangeListener, Set)
-   * @see Config#addChangeListener(ConfigChangeListener, Set, Set)
-   * @see ApolloConfigChangeListener#interestedKeys()
-   * @see ApolloConfigChangeListener#interestedKeyPrefixes()
-   */
-  private final Set<String> m_interestedChangedKeys;
+    /**
+     * @see Config#addChangeListener(ConfigChangeListener, Set)
+     * @see Config#addChangeListener(ConfigChangeListener, Set, Set)
+     * @see ApolloConfigChangeListener#interestedKeys()
+     * @see ApolloConfigChangeListener#interestedKeyPrefixes()
+     */
+    private final Set<String> m_interestedChangedKeys;
 
-  public InterestedConfigChangeEvent(String namespace,
-      Map<String, ConfigChange> changes, Set<String> interestedChangedKeys) {
-    super(namespace, changes);
-    this.m_interestedChangedKeys = interestedChangedKeys;
-  }
+    public InterestedConfigChangeEvent(String namespace,
+                                       Map<String, ConfigChange> changes, Set<String> interestedChangedKeys) {
+        super(namespace, changes);
+        this.m_interestedChangedKeys = interestedChangedKeys;
+    }
 
-  /**
-   * @return interested and changed keys
-   */
-  @Override
-  public Set<String> interestedChangedKeys() {
-    return Collections.unmodifiableSet(this.m_interestedChangedKeys);
-  }
+    /**
+     * @return interested and changed keys
+     */
+    @Override
+    public Set<String> interestedChangedKeys() {
+        return Collections.unmodifiableSet(this.m_interestedChangedKeys);
+    }
 }

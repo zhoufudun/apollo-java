@@ -75,9 +75,9 @@ public class SpringValueRegistry {
             initialize();
         }
     }
-
+    // beanFactory 是一个接口，它的实现类有很多，例如 DefaultListableBeanFactory、XmlBeanFactory 等。  key=变化的key
     public Collection<SpringValue> get(BeanFactory beanFactory, String key) {
-        Multimap<String, SpringValue> beanFactorySpringValues = registry.get(beanFactory);
+        Multimap<String, SpringValue> beanFactorySpringValues = registry.get(beanFactory); // {student=[key: student, beanName: application, method: com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application$$EnhancerBySpringCGLIB$$c6286d24.setValue3], key=[key: key, beanName: application, method: com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application$$EnhancerBySpringCGLIB$$c6286d24.setValue2], order.entry.namespace=[key: order.entry.namespace, beanName: assignedRoutingKeyController, field: com.ctrip.framework.apollo.use.cases.spring.boot.apollo.controller.AssignedRoutingKeyController.orderEntry2Namespace], oes_site.exec_rpt.namespace=[key: oes_site.exec_rpt.namespace, beanName: assignedRoutingKeyController, field: com.ctrip.framework.apollo.use.cases.spring.boot.apollo.controller.AssignedRoutingKeyController.oesExecRpt2Namespace]}
         if (beanFactorySpringValues == null) {
             return null;
         }

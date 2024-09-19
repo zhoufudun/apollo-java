@@ -64,7 +64,7 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
     private static final Logger logger = LoggerFactory.getLogger(AutoUpdateConfigChangeListener.class);
     private final boolean typeConverterHasConvertIfNecessaryWithFieldParameter;
     private ConfigurableBeanFactory beanFactory; // org.springframework.beans.factory.support.DefaultListableBeanFactory
-    private TypeConverter typeConverter; //
+    private TypeConverter typeConverter; // SimpleTypeConverter
     private final PlaceholderHelper placeholderHelper;
     private final SpringValueRegistry springValueRegistry;
     private final Map<String, Gson> datePatternGsonMap;
@@ -80,7 +80,7 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
 
     @Override
     public void onChange(ConfigChangeEvent changeEvent) {
-        Set<String> keys = changeEvent.changedKeys();
+        Set<String> keys = changeEvent.changedKeys(); // 获取所有的key：[key]
         if (CollectionUtils.isEmpty(keys)) {
             return;
         }
@@ -92,7 +92,7 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
             }
 
             // 2. update the value
-            for (SpringValue val : targetValues) {
+            for (SpringValue val : targetValues) { // targetValues=key: key, beanName: application, method: com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application$$EnhancerBySpringCGLIB$$c6286d24.setValue2
                 updateSpringValue(val);
             }
         }
@@ -100,7 +100,7 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
 
     private void updateSpringValue(SpringValue springValue) {
         try {
-            Object value = resolvePropertyValue(springValue);
+            Object value = resolvePropertyValue(springValue); // keyName5
             springValue.update(value);
 
             logger.info("Auto update apollo changed value successfully, new value: {}, {}", value,
@@ -118,19 +118,19 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
      * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#doResolveDependency(org.springframework.beans.factory.config.DependencyDescriptor,
      * java.lang.String, java.util.Set, org.springframework.beans.TypeConverter)
      */
-    private Object resolvePropertyValue(SpringValue springValue) {
+    private Object resolvePropertyValue(SpringValue springValue) { // key: key, beanName: application, method: com.ctrip.framework.apollo.use.cases.spring.boot.apollo.Application$$EnhancerBySpringCGLIB$$c6286d24.setValue2
         // value will never be null, as @Value and @ApolloJsonValue will not allow that
-        Object value = placeholderHelper
+        Object value = placeholderHelper // value=keyName5
                 .resolvePropertyValue(beanFactory, springValue.getBeanName(), springValue.getPlaceholder());
 
-        if (springValue.isJson()) {
+        if (springValue.isJson()) { // 是json
             ApolloJsonValue apolloJsonValue = springValue.isField() ?
                     springValue.getField().getAnnotation(ApolloJsonValue.class) :
                     springValue.getMethodParameter().getMethodAnnotation(ApolloJsonValue.class);
             String datePattern = apolloJsonValue != null ? apolloJsonValue.datePattern() : StringUtils.EMPTY;
             value = parseJsonValue((String) value, springValue.getGenericType(), datePattern);
         } else {
-            if (springValue.isField()) {
+            if (springValue.isField()) { // 是字段
                 // org.springframework.beans.TypeConverter#convertIfNecessary(java.lang.Object, java.lang.Class, java.lang.reflect.Field) is available from Spring 3.2.0+
                 if (typeConverterHasConvertIfNecessaryWithFieldParameter) {
                     value = this.typeConverter
@@ -138,9 +138,9 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener,
                 } else {
                     value = this.typeConverter.convertIfNecessary(value, springValue.getTargetType());
                 }
-            } else {
+            } else { // 是方法
                 value = this.typeConverter.convertIfNecessary(value, springValue.getTargetType(),
-                        springValue.getMethodParameter());
+                        springValue.getMethodParameter()); // keyName5, 使用类型转换器typeConverter来转换值value，使其符合springValue的目标类型targetType
             }
         }
 

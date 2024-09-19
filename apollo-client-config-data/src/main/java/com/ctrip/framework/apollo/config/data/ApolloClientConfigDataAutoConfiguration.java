@@ -31,16 +31,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class ApolloClientConfigDataAutoConfiguration {
 
-  @ConditionalOnMissingBean(ApolloClientProperties.class)
-  @ConfigurationProperties(ApolloClientPropertiesFactory.PROPERTIES_PREFIX)
-  @Bean
-  public static ApolloClientProperties apolloWebClientSecurityProperties() {
-    return new ApolloClientProperties();
-  }
+    @ConditionalOnMissingBean(ApolloClientProperties.class)
+    @ConfigurationProperties(ApolloClientPropertiesFactory.PROPERTIES_PREFIX)
+    @Bean
+    public static ApolloClientProperties apolloWebClientSecurityProperties() {
+        return new ApolloClientProperties();
+    }
 
-  @ConditionalOnMissingBean(PropertySourcesProcessor.class)
-  @Bean
-  public static ConfigPropertySourcesProcessor configPropertySourcesProcessor() {
-    return new ConfigPropertySourcesProcessor();
-  }
+    @ConditionalOnMissingBean(PropertySourcesProcessor.class)
+    @Bean
+    public static ConfigPropertySourcesProcessor configPropertySourcesProcessor() {
+        return new ConfigPropertySourcesProcessor();
+    }
 }

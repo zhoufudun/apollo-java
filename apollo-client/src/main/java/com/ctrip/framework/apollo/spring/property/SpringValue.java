@@ -110,11 +110,11 @@ public class SpringValue {
 
     private void injectMethod(Object newVal)
             throws InvocationTargetException, IllegalAccessException {
-        Object bean = beanRef.get();
+        Object bean = beanRef.get(); //
         if (bean == null) {
             return;
         }
-        methodParameter.getMethod().invoke(bean, newVal);
+        methodParameter.getMethod().invoke(bean, newVal); // 反射调用方法，设置值
     }
 
     public String getBeanName() {

@@ -502,12 +502,12 @@ public abstract class AbstractConfig implements Config {
         }
         return configChangeListeners;
     }
-
+    // listener=com.ctrip.framework.apollo.spring.config.PropertySourcesProcessor$$Lambda/0x0000022e273af458@9f6d87，  changeEvent=InterestedConfigChangeEvent
     private void notifyAsync(final ConfigChangeListener listener, final ConfigChangeEvent changeEvent) {
         m_executorService.submit(new Runnable() {
             @Override
             public void run() {
-                String listenerName = listener.getClass().getName();
+                String listenerName = listener.getClass().getName(); // com.ctrip.framework.apollo.spring.config.PropertySourcesProcessor$$Lambda/0x0000022e273af458
                 Transaction transaction = Tracer.newTransaction("Apollo.ConfigChangeListener", listenerName);
                 try {
                     listener.onChange(changeEvent);
